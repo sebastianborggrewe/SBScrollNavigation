@@ -7,7 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SBScrollNavigation.h"
 
-@interface SBViewController : UIViewController
+@interface SBViewController : UIViewController <SBScrollNavigationDelegate>
+
+
+@property (nonatomic, strong) IBOutlet SBScrollNavigation *scrollNavigation;
 
 @end

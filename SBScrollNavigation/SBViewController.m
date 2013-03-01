@@ -14,6 +14,33 @@
 
 @implementation SBViewController
 
+@synthesize scrollNavigation;
+
+#pragma mark - SBScrollNavigation 
+
+- (NSInteger) numberOfMenuItems {
+  return 8;
+}
+
+// either use a view for your menu items
+/*- (UIView *) scrollView:(SBScrollNavigation *)scrollView viewForMenuIndex:(NSInteger) index {
+  
+}*/
+
+// Or use a button (DON'T USE BOTH)
+- (NSString *) scrollView:(SBScrollNavigation *)scrollView titleForMenuIndex:(NSInteger) index {
+  NSLog(@"Button %d",index);
+  
+  return [NSString stringWithFormat:@"Button %d",index];
+}
+
+// Get notified, when a menu Item is selected
+- (void) scrollView:(SBScrollNavigation *)scrollView menuItemSelectedAtIndex:(NSInteger) index {
+  NSLog(@"Selected Button %d",index);
+}
+
+
+#pragma mark - View Cycle
 - (void)viewDidLoad
 {
     [super viewDidLoad];
