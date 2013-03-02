@@ -15,7 +15,28 @@
 
 @implementation SBScrollNavigation
 
+// Measurements for inline padding of the ScrollNavigation
+@synthesize horizontalPadding = _horizontalPadding;
+@synthesize verticalPadding =  _verticalPadding;
+
+// Button measurements
+@synthesize btnHorizontalPadding = _btnHorizontalPadding;
+@synthesize btnSpacing = _btnSpacing;
+@synthesize btnCornerRadius = _btnCornerRadius;
+
+// Selected Appearance
+@synthesize btnColor = _btnColor;
+@synthesize btnSelectedFontColor = _btnSelectedFontColor;
+@synthesize btnShadowColor = _btnShadowColor;
+
+// Normal and Standard appearance
+@synthesize btnFont = _btnFont;
+@synthesize btnFontColor = _btnFontColor;
+@synthesize btnSelectedColor = _btnSelectedColor;
+
 @synthesize menuDelegate = _menuDelegate;
+
+
 
 #pragma mark - Custom Methods
 
@@ -45,7 +66,20 @@
   [self scrollRectToVisible:button.frame animated:YES];
 }
 
+/* selectedIndex
+ * returns the currently active index. Should not be
+ * needed, but just in case.
+ */
+- (NSInteger) selectedIndex {
+  return _selectedButton;
+}
+
 #pragma mark - Initialize and layout
+/* initWithCoder:(NSCoder *)aDecoder
+ *
+ * In case the ScrollNavigation is initalized using 
+ * storyboards.
+ */
 - (id) initWithCoder:(NSCoder *)aDecoder {
   self = [super initWithCoder:aDecoder];
   if (self) {
@@ -55,6 +89,11 @@
   return self;
 }
 
+/* initWithFrame:(CGRect)frame
+ *
+ * For initializing the ScrollNavigation
+ * programatically.
+ */
 - (id) initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
@@ -64,22 +103,29 @@
   return self;
 }
 
+/* configure
+ *
+ * Configuration of initial values. Gets called
+ * when initalizing through initWithFrame and
+ * initWithCoder. Values can be changed through setters.
+ */
 - (void) configure {
-  NSLog(@"INIT");
   
   // Configure UIScrollView
   self.showsHorizontalScrollIndicator = NO;
+  self.canCancelContentTouches = YES;
+  self.clipsToBounds = YES;
   self.backgroundColor = [UIColor blackColor];
   
   // Settings
-  _buttonPadding = 25;
-  _leftRightPadding = 10;
-  _topPadding = 5;
-  _btnWidthAdjustment = 30;
+  _btnHorizontalPadding = 10.0f;
+  _horizontalPadding = 10.0f;
+  _verticalPadding = 5.0f;
+  _btnSpacing = 10.0f;
   
   // Button Appearance (State Independent)
   _btnCornerRadius = 5.0f;
-  _btnFont = [UIFont boldSystemFontOfSize:15];
+  _btnFont = [UIFont boldSystemFontOfSize:15.0f];
   
   // Normal State Button Appearance
   _btnFontColor = [UIColor whiteColor];
@@ -93,7 +139,7 @@
 
 
 /* layoutSubviews
- * Layout the scrollView
+ * Layout the scrollView and set the selectedButton.
  */
 - (void) layoutSubviews {
   
@@ -101,13 +147,10 @@
   [[self subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
   
   // Initialize contenWidth
-  CGFloat contentWidth = 0.0;
-  int xPos = _leftRightPadding;
+  int xPos = _horizontalPadding;
   
   // Get the number of menuItems from delegate
   if ([_menuDelegate respondsToSelector:@selector(numberOfMenuItems)]) {
-  
-    NSString *menuItem;
     
     // Add the buttons
     for (int i=0; i<[_menuDelegate numberOfMenuItems]; i++) {
@@ -116,67 +159,87 @@
       if ([_menuDelegate respondsToSelector:@selector(scrollView:titleForMenuIndex:)]) {
         
         // Get the title for the button
-        menuItem = [_menuDelegate scrollView:self titleForMenuIndex:i];
-        
-        contentWidth += [menuItem sizeWithFont:_btnFont].width + _btnWidthAdjustment;
+        NSString *menuItem = [_menuDelegate scrollView:self titleForMenuIndex:i];
         
         UIButton *customButton = [UIButton buttonWithType:UIButtonTypeCustom];
         
+        // Set Button Title
         [customButton setTitle:menuItem forState:UIControlStateNormal];
+        
+        // Change appearance
         customButton.titleLabel.font = _btnFont;
+        customButton.titleLabel.textAlignment = NSTextAlignmentCenter;
         customButton.titleLabel.textColor = _btnFontColor;
         customButton.backgroundColor = _btnColor;
         
-        //customButton.clipsToBounds = YES;
+        customButton.clipsToBounds = YES;
         customButton.layer.cornerRadius = _btnCornerRadius;
         
         // tagged by ID to access it
         customButton.tag = i;
         
+        // Add selector
         [customButton addTarget:self action:@selector(selectedButton:) forControlEvents:UIControlEventTouchUpInside];
-
-        int buttonWidth = [menuItem sizeWithFont:customButton.titleLabel.font
-                               constrainedToSize:CGSizeMake(150, self.frame.size.height-(2*_topPadding))
+        
+        float buttonWidth = [menuItem sizeWithFont:customButton.titleLabel.font
+                               constrainedToSize:CGSizeMake(9999, customButton.titleLabel.frame.size.height)
                                    lineBreakMode:NSLineBreakByClipping].width;
         
-        customButton.frame = CGRectMake(xPos,
-                                        _topPadding,
-                                        (buttonWidth + _buttonPadding),
-                                        self.frame.size.height-(2*_topPadding));
-        NSLog(@"Custom Frame: %@",NSStringFromCGRect(customButton.frame));
+        customButton.frame = CGRectMake(xPos,                                         // current position in ScrollView
+                                        _verticalPadding,                             // vertical ScrollView padding
+                                        (buttonWidth + (2*_btnHorizontalPadding)),    // label size + horizontal btn padding
+                                        self.frame.size.height-(2*_verticalPadding)); // vertical ScrollView padding
         
-        xPos += buttonWidth;
+        // Add Btn to overall position
+        xPos += customButton.frame.size.width + _btnSpacing;
         
+        // Set the selected button style (shadow and color)
         if (_selectedButton == i) {
-          
           customButton.backgroundColor = _btnSelectedColor;
-          
+          customButton.titleLabel.textColor = _btnSelectedFontColor;
           customButton.titleLabel.shadowColor = _btnShadowColor;
           customButton.titleLabel.shadowOffset = CGSizeMake(1, 1);
-
         }
         
+        // Add to scrollView
         [self addSubview:customButton];
         
-      // Views in case you don't want buttons
+      // Views in case you don't want colored buttons
       } else if([_menuDelegate respondsToSelector:@selector(scrollView:viewForMenuIndex:)]) {
+        // get view from delegate
         UIView *viewToAdd = [_menuDelegate scrollView:self viewForMenuIndex:i];
         
-        xPos += viewToAdd.frame.size.width;
+        // Create button surrounding view that has been added
+        UIButton *customButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        customButton.clipsToBounds = YES;
         
-        [self addSubview:viewToAdd];
+        // Add selector
+        [customButton addTarget:self action:@selector(selectedButton:) forControlEvents:UIControlEventTouchUpInside];
+        
+        customButton.frame = CGRectMake(xPos,
+                                        _verticalPadding,
+                                        viewToAdd.frame.size.width,
+                                        self.frame.size.height-(2*_verticalPadding));
+        
+        // add view to button
+        [customButton addSubview:viewToAdd];
+        
+        // add view size and spacing
+        xPos += viewToAdd.frame.size.width+_btnSpacing;
+        
+        // add button to ScrollNavigation
+        [self addSubview:customButton];
       }
       
-      // Padding
-      if (i < [_menuDelegate numberOfMenuItems]-1) {
-        xPos += _buttonPadding;
-      } else {
-        xPos += _buttonPadding+_leftRightPadding;
+      // Adjust overall size => remove btnSpacing
+      // and add horizontal padding
+      if (i == [_menuDelegate numberOfMenuItems]-1) {
+        xPos += _horizontalPadding-_btnSpacing;
       }
-      
     }
   }
   
+  // Set overall contentSize
   self.contentSize = CGSizeMake(xPos,self.frame.size.height);
 }
 

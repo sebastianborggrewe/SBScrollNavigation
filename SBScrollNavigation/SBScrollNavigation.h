@@ -12,6 +12,7 @@
 
 @protocol SBScrollNavigationDelegate <NSObject>
 
+// gets the number of menu items (needs to be implemented)
 - (NSInteger) numberOfMenuItems;
 
 @optional
@@ -28,29 +29,51 @@
 
 
 @interface SBScrollNavigation : UIScrollView {
-  NSArray *_items;
+  
+  // Selected Index
   NSInteger _selectedButton;
-  NSInteger _leftRightPadding;
-  NSInteger _buttonPadding;
-  NSInteger _topPadding;
-  NSInteger _btnWidthAdjustment;
-  NSInteger _btnCornerRadius;
   
-  UIColor *_btnFontColor;
+  // Measurements for inline padding of the ScrollNavigation
+  float _horizontalPadding;
+  float _verticalPadding;
+  
+  // Button measurements
+  float _btnHorizontalPadding;
+  float _btnSpacing;
+  float _btnCornerRadius;
+  
+  // Selected Appearance
+  UIColor *_btnColor;
   UIColor *_btnSelectedFontColor;
-  
   UIColor *_btnShadowColor;
   
+  // Normal and Standard appearance
   UIFont *_btnFont;
-  
-  UIColor *_btnColor;
+  UIColor *_btnFontColor;
   UIColor *_btnSelectedColor;
-  BOOL _hasShadow;
   
+  // delegate for ScrollNavigation. UIScrollView delegate can
+  // still be used.
   __weak id <SBScrollNavigationDelegate> _menuDelegate;
 }
 
 @property (nonatomic, weak) IBOutlet id <SBScrollNavigationDelegate> menuDelegate;
+
+@property (nonatomic) float horizontalPadding;
+@property (nonatomic) float verticalPadding;
+
+@property (nonatomic) float btnHorizontalPadding;
+@property (nonatomic) float btnSpacing;
+@property (nonatomic) float btnCornerRadius;
+
+@property (nonatomic, strong) UIColor *btnColor;
+@property (nonatomic, strong) UIColor *btnSelectedFontColor;
+@property (nonatomic, strong) UIColor *btnShadowColor;
+
+
+@property (nonatomic, strong) UIFont *btnFont;
+@property (nonatomic, strong) UIColor *btnFontColor;
+@property (nonatomic, strong) UIColor *btnSelectedColor;
 
 - (void) selectedButton:(id)sender;
 - (void) setSelectedIndex:(NSInteger)index;

@@ -9,9 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "SBScrollNavigation.h"
 
-@interface SBViewController : UIViewController <SBScrollNavigationDelegate>
+@interface SBViewController : UIViewController <SBScrollNavigationDelegate> {
+  NSArray *_items;
+}
 
 
 @property (nonatomic, strong) IBOutlet SBScrollNavigation *scrollNavigation;
+@property (nonatomic, strong) IBOutlet UILabel *myLabel;
 
 @end
