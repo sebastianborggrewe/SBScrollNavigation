@@ -47,7 +47,7 @@
   [super viewDidLoad];
 	
   // Part of the example: defining data for buttons to trigger
-  _items = [NSArray arrayWithObjects:@"This is just an example",@"What you can do",@"with this library",@"Enjoy and please,",@"let me know,",@"if you have any difficulties ",@"or",@"if you enjoy using it :)",@"Sebastian", nil];
+  _items = [NSArray arrayWithObjects:@"This is just an example",@"of what you can do",@"with this library.",@"Enjoy and please,",@"let me know,",@"if you have any difficulties ",@"or",@"if you enjoy using it :)",@"Sebastian", nil];
   
   // setting default label data
   [myLabel setText:[NSString stringWithFormat:@"(0) %@",[_items objectAtIndex:0]]];
